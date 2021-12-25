@@ -28,13 +28,15 @@ while True:
                     data = json.load(read_file)
 
 
-                for k in data.keys():
-                    if content_to_delete != k:
-                        print('\nNo such entry found : {} '.format(content_to_delete))
-                        break
+                
+                if content_to_delete not in data.keys():
+                    print('\nNo such entry found : {} '.format(content_to_delete))
+                    pass
 
-                    if k == content_to_delete:
-                        del data[k]
+                else:
+                    if content_to_delete in data.keys():
+                        del data[content_to_delete]
+                        print('All entries of "{}" removed '.format(content_to_delete))
                         
 
                     with open("pswd_db.json", 'w') as write_file:
@@ -60,13 +62,15 @@ while True:
                 with open("pswd_db.json", "r") as read_file:
                     data = json.load(read_file)
 
-                for k in data.keys():
-                    if content_to_update != k:
-                        print('\nNo such entry found : {} '.format(content_to_update))
-                        break
+               
+                if content_to_update not in data.keys():
+                    print('\nNo such entry found : {} '.format(content_to_update))
+                    pass
 
-                    if k == content_to_update:
-                        data[k] = new_pswd
+                else:
+
+                    if content_to_update in data.keys():
+                        data[content_to_update] = new_pswd
 
                         with open ("pswd_db.json", "w") as write_file:
                             json.dump(data,write_file)
