@@ -1,5 +1,4 @@
 import json
-#from types import new_class
 import pyinputplus as pyip
 
 
@@ -26,9 +25,7 @@ while True:
             try:
                 with open("pswd_db.json", 'r') as read_file:
                     data = json.load(read_file)
-
-
-                
+         
                 if content_to_delete not in data.keys():
                     print('\nNo such entry found : {} '.format(content_to_delete))
                     pass
@@ -55,7 +52,6 @@ while True:
             content_to_update = input('Enter a saved credential to update : ').lower().title()
             print('')
             new_pswd = input("Enter the new password for {} : ".format(content_to_update))
-
 
             def update_content(content_to_update):
 
