@@ -2,33 +2,41 @@ import json, pprint,os
 import random
 import string
 import pyinputplus as pyip
+from datetime import datetime
+
+# Will append the date to the password to know the date it was created
+currentTime = datetime.today().strftime('%b %d %Y')
+
 
 try:
 
     def pswd_gen():
         while True:
-            pswd_length = int(input("Enter the length of the password or press 'Enter/0 to return to main menu' : "))
+            try:
+                pswd_length = int(input("Enter the length of the password or press 'Enter/0 to return to main menu' : "))
+        
+                if pswd_length == (""):
+                    print('Nothing entered, returning to main menu')
+                    main_menu()            
 
-            if pswd_length == "":
-                print('Nothing entered, returning to main menu')
+                elif pswd_length == int(0):
+                    print('0 entered, returning to main menu')
+                    main_menu()
+
+                small_letters = string.ascii_uppercase
+                caps = string.ascii_lowercase
+                integers = string.digits
+                symbols = string.punctuation
+
+                combine = small_letters + caps + integers + symbols
+
+                betapswd = random.sample(combine,pswd_length)
+                global fullcred
+                password = "".join(betapswd)
+                fullcred = password #+ ":" + currentTime
+            except ValueError as VE:
                 main_menu()
-
-            elif pswd_length == int(0):
-                print('0 entered, returning to main menu')
-                main_menu()
-
-            small_letters = string.ascii_uppercase
-            caps = string.ascii_lowercase
-            integers = string.digits
-            symbols = string.punctuation
-
-            combine = small_letters + caps + integers + symbols
-
-            betapswd = random.sample(combine,pswd_length)
-            global password
-            password = "".join(betapswd)
-
-            print(password)
+            print(fullcred)
         #pswd_gen()
 
     def update_pswrd():
@@ -53,7 +61,7 @@ try:
 
 
         # this funcion handles the delete option
-        # take one argument, then open the dictionary in read more to load to memory
+        # take one argument, then open the dictionary in read mode to load to memory
         # rest of code in this block carries out the chosen action if the entry is found, else informs that
         # no such entry found
 
@@ -89,6 +97,7 @@ try:
                     content_to_update = input('Enter a saved credential to update : ').lower().title()
                     print('')
                     new_pswd = input("Enter the new password for {} : ".format(content_to_update))
+                    fullcredupdate = new_pswd + ":" + currentTime
 
 
                     def update_content(content_to_update):
@@ -104,7 +113,7 @@ try:
                         else:
 
                             if content_to_update in data.keys():
-                                data[content_to_update] = new_pswd
+                                data[content_to_update] = fullcredupdate
 
                                 with open ("pswd_db.json", "w") as write_file:
                                     json.dump(data,write_file)
@@ -116,29 +125,33 @@ try:
     def create_record():
         while True:
 
-            with open ("pswd_db.json", 'r') as read_file:
-                    pswd_records = json.load(read_file)
+            with open ("pswd_db.json", "r") as read_file:
+                pswd_records = json.load(read_file)
 
             print('')
-            logInCred = input('Enter the LogIn/User Name : ')
+            logInCred = input('Enter the LogIn/User Name : ').lower().title()
 
             if logInCred == "":
                 print('Nothing entered, returning to main menu')
                 main_menu()
+            else:
+                logInCred == logInCred
+                logInPswrd = input('Enter a Password : ')
+                fullcred = logInPswrd + ":" + currentTime
 
-            logInPswrd = input('Enter a Passoword : ')
+                data = {}    
+                data[logInCred] = fullcred
+                pprint.pprint(data)
 
-            data = {}    
-            data[logInCred] = logInPswrd
-            pprint.pprint(data)
-
-            pswd_records.update(data)
-            print('')
-            print('Records updated')
+                pswd_records.update(data)
+                print('')
+                print('Records updated')
 
             with open("pswd_db.json", "w") as write_file:
                 json.dump(pswd_records, write_file)
-                
+                    
+            #main_menu()
+
 
     def new_record(credential,passwd):
             with open ("pswd_db.json", 'r') as read_file:
@@ -187,11 +200,11 @@ try:
                 print("Nothing entered, returning to main menu\n")
                 main_menu()
                 
-
+            
             for k,v in pwdDb.items():   
                 if k == find_pwd:
                     print("Match Found:\n" + os.linesep + k,':',v)
-                    continue
+                    pass
             
             else:
                 if find_pwd not in pwdDb:
@@ -199,7 +212,7 @@ try:
 
                     response = pyip.inputMenu(["Yes","No"],lettered=False, numbered=True)
                     if response == "Yes":
-                        pswd_gen()
+                        create_record()
 
                     else:
                         main_menu()
@@ -213,7 +226,7 @@ try:
                     new_pswd = pyip.inputMenu(["yes","No"],numbered=True)
 
                     if new_pswd == "yes":
-                        passwd = password
+                        passwd = fullcred
                         new_record(cred,passwd)
                         main_menu()
 
@@ -223,12 +236,14 @@ try:
                         new_record(cred,own_paswrd)
 
                 #new_record(cred,passwd)
+
+# the main menu of the program, every option in this block is linked to a function                
     while True:
         def main_menu():
             print('')
             print("What would you like to do: ")
             print('')
-            options = pyip.inputMenu(["Generate a Password", "Retrieve a Password", "Store a Password", "Update a Password","Exit"],numbered=True)
+            options = pyip.inputMenu(["Generate a Password", "Retrieve a Password", "Store a Password", "Update/Delete a Password","Exit"],numbered=True)
 
             if options == "Generate a Password":
                 pswd_gen()
@@ -239,7 +254,7 @@ try:
             if options == "Store a Password":
                 create_record()
 
-            if options == "Update a Password":
+            if options == "Update/Delete a Password":
                 update_pswrd()
 
             if options == "Exit":
